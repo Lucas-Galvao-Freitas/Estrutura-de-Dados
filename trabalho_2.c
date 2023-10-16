@@ -26,16 +26,54 @@ Processo* criarProcesso(char nome[30], int prioridade, float taxaPorCiclo, int t
 
 // Função para inserir um processo na lista
 void inserirProcesso(Processo **inicio, Processo *novoProcesso) {
-    if (*inicio == NULL) {
+    if (*inicio == NULL) 
+    {
         *inicio = novoProcesso;
         novoProcesso->prox = *inicio;
-    } else {
+    }
+    else 
+    {
         Processo *temp = *inicio;
-        while (temp->prox != *inicio) {
+        int nomeExiste = 0;
+        int mesmaPrioridade = 0;
+
+        do
+        {
+            if(strcmp(temp->nome, novoProcesso->nome) == 0)
+            {
+                nomeExiste = 1;
+                break;
+            }
+            if(temp->prioridade == novoProcesso->prioridade)
+            {
+                mesmaPrioridade = 1;
+                break;
+            }
+        } while (temp != *inicio);
+        
+        if (nomeExiste)
+        {
+            printf("Ja existe um processo com o mesmo nome. Insercao incompleta.\n");
+            free(novoProcesso);
+            return;
+        }
+        if (mesmaPrioridade)
+        {
+            printf("Ja existe um processo com a mesma prioridade. Insercao incompleta. \n");
+            free(novoProcesso);
+            return;
+        }
+        
+        temp = *inicio;
+        while (temp->prox != *inicio && temp->prox->prioridade > novoProcesso->prioridade) {
             temp = temp->prox;
         }
+        if(temp->prox == *inicio && novoProcesso->prioridade > temp->prox->prioridade)
+        {
+            *inicio = novoProcesso;
+        }
+        novoProcesso->prox = temp->prox;
         temp->prox = novoProcesso;
-        novoProcesso->prox = *inicio;
     }
 }
 
@@ -48,17 +86,23 @@ void removerProcesso(Processo **inicio, Processo *processo) {
     Processo *anterior = NULL;
     Processo *atual = *inicio;
 
-    while (atual->prox != *inicio && atual != processo) {
+    while (atual->prox != *inicio && atual->prox != processo) {
         anterior = atual;
         atual = atual->prox;
     }
 
+    anterior = atual;
+    atual = atual->prox;
+
     if (atual == processo) {
-        if (anterior == NULL) {
+
+        if (atual == *inicio) {
             *inicio = atual->prox;
+            anterior->prox = *inicio;
         } else {
             anterior->prox = atual->prox;
         }
+        atual = NULL;
         free(atual);
     }
 }
@@ -66,16 +110,18 @@ void removerProcesso(Processo **inicio, Processo *processo) {
 // Função para simular o processamento
 void simularProcessamento(Processo *processo) {
     printf("%s entrou no processador\n", processo->nome);
-    for (int i = 0; i < processo->tempoProcessamento; i++) {
-        sleep(1);
-        processo->taxaCompleto += processo->taxaPorCiclo;
-    }
+
+    sleep(processo->tempoProcessamento);
+    processo->taxaCompleto += processo->taxaPorCiclo;
+
+    //quando um processo tiver taxaPorCiclo não divisivel por 100, ele completa com 100% ou com a taxa que ele alcançar?
     printf("%s saiu do processador com taxa de %.2f%%\n", processo->nome, processo->taxaCompleto);
 
     if (processo->taxaCompleto >= 100.0) {
         printf("%s foi finalizado\n", processo->nome);
         removerProcesso(&processo->prox, processo);
-        free(processo);
+        //free(processo);
+        //acho que esse free nn é necessario
     }
 }
 
@@ -97,24 +143,46 @@ void imprimirLista(Processo *inicio) {
 int main() {
     Processo *listaProcessos = NULL;
 
-    // Exemplo com dois processos
-    Processo *proc1 = criarProcesso("Proc1", 1, 5.0, 5);
-    Processo *proc2 = criarProcesso("Proc2", 2, 10.0, 5);
+    int numProcessos;
+    printf("Quantos processos deseja executar? ");
+    scanf("%d", &numProcessos);
 
-    // Inserir processos na lista
-    inserirProcesso(&listaProcessos, proc1);
-    inserirProcesso(&listaProcessos, proc2);
+    for(int i = 0; i < numProcessos; i++)
+    {
+        char nome[30];
+        int prioridade;
+        float taxaPorCiclo;
+        int tempoProcessamento;
 
-    // Simular o processamento dos processos
-    int numCiclos = 5; // Número de ciclos para simulação
-    for (int i = 0; i < numCiclos; i++) {
-        Processo *atual = listaProcessos;
-        do {
-            simularProcessamento(atual);
-            atual = atual->prox;
-        } while (atual != listaProcessos);
+        printf("\nProcesso %d:\n", i + 1);
+        printf("Nome: ");
+        scanf("%s", nome);
+        printf("Prioridade: ");
+        scanf("%d", &prioridade);
+        printf("Taxa por ciclo: ");
+        scanf("%f", &taxaPorCiclo);
+        printf("Tempo de processamento: ");
+        scanf("%d", &tempoProcessamento);
+
+        Processo *novoProcesso = criarProcesso(nome, prioridade, taxaPorCiclo, tempoProcessamento);
+        inserirProcesso(&listaProcessos, novoProcesso);
+        
     }
 
+    printf("\n=== Processamento Iniciadon ===\n");
+
+    // Simular o processamento dos processos
+    Processo *atual = listaProcessos;
+    do {
+        if(atual->taxaCompleto >= 100 && atual == atual->prox)
+        {
+            break;
+        }
+        simularProcessamento(atual);
+        atual = atual->prox;
+    } while (atual != NULL);
+
+    //Tambem acho que nn é necessario, essas memorias ja foram liberadas 
     // Liberar memória alocada para os processos e a lista
     while (listaProcessos != NULL) {
         Processo *temp = listaProcessos;
