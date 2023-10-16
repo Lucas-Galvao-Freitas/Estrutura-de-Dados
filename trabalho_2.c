@@ -114,6 +114,9 @@ void simularProcessamento(Processo *processo) {
     sleep(processo->tempoProcessamento);
     processo->taxaCompleto += processo->taxaPorCiclo;
 
+    if(processo->taxaCompleto > 100)
+        processo->taxaCompleto = 100;
+
     //quando um processo tiver taxaPorCiclo não divisivel por 100, ele completa com 100% ou com a taxa que ele alcançar?
     printf("%s saiu do processador com taxa de %.2f%%\n", processo->nome, processo->taxaCompleto);
 
@@ -169,7 +172,7 @@ int main() {
         
     }
 
-    printf("\n=== Processamento Iniciadon ===\n");
+    printf("\n=== Processamento Iniciado ===\n");
 
     // Simular o processamento dos processos
     Processo *atual = listaProcessos;

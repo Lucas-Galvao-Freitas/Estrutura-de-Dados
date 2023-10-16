@@ -80,6 +80,9 @@ void simularProcessamento(Processo *processo) {
     sleep(processo->tempoProcessamento);
     processo->taxaCompleto += processo->taxaPorCiclo;
 
+    if(processo->taxaCompleto > 100)
+        processo->taxaCompleto = 100;
+
     //quando um processo tiver taxaPorCiclo não divisivel por 100, ele completa com 100% ou com a taxa que ele alcançar?
     printf("%s saiu do processador com taxa de %.2f%%\n", processo->nome, processo->taxaCompleto);
 
@@ -112,7 +115,7 @@ int main() {
     // Exemplo com dois processos
     Processo *proc1 = criarProcesso("Proc1", 1, 25, 5);
     Processo *proc2 = criarProcesso("Proc2", 3, 50, 5);
-    Processo *proc3 = criarProcesso("Proc3", 2, 20, 2);
+    Processo *proc3 = criarProcesso("Proc3", 2, 75, 2);
 
     // Inserir processos na lista
     inserirProcesso(&listaProcessos, proc1);
