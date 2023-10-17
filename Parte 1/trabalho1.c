@@ -18,7 +18,7 @@ typedef struct Universidade{
 }Universidade;
 
 
-void insere(Universidade** inicio, char nome[], int qtdAlunos) {
+void insere_universidade(Universidade** inicio, char nome[], int qtdAlunos) {
     Universidade* nova_uni = malloc(sizeof(Universidade));
     strcpy(nova_uni->nome, nome);
     nova_uni->qtdAlunos = qtdAlunos;
@@ -32,10 +32,57 @@ void insere(Universidade** inicio, char nome[], int qtdAlunos) {
     }
 
     Universidade* aux = *inicio;
-    while (aux->prox != NULL) {
+    while (aux->prox != NULL && strcmp(nova_uni->nome, aux->nome) > 0) {
         aux = aux->prox;
     }
+
+    if(aux == *inicio)
+    {
+        nova_uni->prox = *inicio;
+        *inicio = nova_uni;
+        return;
+    }
+
+    nova_uni->prox = aux->prox;
     aux->prox = nova_uni;
+}
+
+
+void insere_aluno(char nome[30], int matricula, int idade, int disciplinas, char nome_uni[30], Universidade **uni_inicio)
+{
+    Aluno *novo_aluno = (Aluno*) malloc(sizeof(Aluno));
+    strcpy(novo_aluno->nome, nome);
+    novo_aluno->matricula = matricula;
+    novo_aluno->idade = idade;
+    novo_aluno->nroDisciplinas = disciplinas;
+    novo_aluno->prox = NULL;
+
+    Universidade *universidade = *uni_inicio;
+    while(strcmp(universidade->nome, nome_uni) != 0)
+    {
+        universidade = universidade->prox;
+    }
+
+    if(universidade->inicioAluno == NULL)
+    {
+        universidade->inicioAluno = novo_aluno;
+    }
+
+    Aluno *aux = universidade->inicioAluno;
+    while(aux->prox != NULL && novo_aluno->matricula > aux->matricula)
+    {
+        aux = aux->prox;
+    }
+
+    if(aux == universidade->inicioAluno)
+    {
+        novo_aluno->prox = universidade->inicioAluno;
+        universidade->inicioAluno = novo_aluno;
+        return;
+    }
+
+    novo_aluno->prox = aux->prox;
+    aux->prox = novo_aluno;
 }
 
 void salvaDados(Universidade* inicio) {
@@ -147,11 +194,26 @@ void imprime(Universidade* head){
 	}
 }
 
+void imprime_alunos(Universidade *inicio)
+{
+    Aluno *aux = inicio->inicioAluno;
+    /*while(aux != NULL)
+    {
+        printf("Nome: %s\nMatricula: %d\nIdade: %d\nNum Disciplinas: %d\n\n", aux->nome, aux->matricula, aux->idade, aux->nroDisciplinas);
+        aux = aux->prox;
+    }*/
+    
+}
+
 int main() {
     Universidade *inicio = NULL;
 	int op;
-	recuperaDados(&inicio);
+	//recuperaDados(&inicio);
 	char nome[30];
+    char nome_aluno[30];
+
+    int qtd_alunos;
+    int matricula, idade, disciplinas;
 	
 	//imprime(inicio);
 
@@ -160,19 +222,52 @@ int main() {
 
 	while(op == 1){
 		fflush(stdin);
-    	printf("insira uma universidade:");
+    	printf("Insira uma universidade:");
     	gets(nome);
     	
     	fflush(stdin);
+
+        printf("Qual a quantidade de alunos? ");
+        scanf("%d", &qtd_alunos);
     	
-    	insere(&inicio, nome, 0);
+    	insere_universidade(&inicio, nome, qtd_alunos);
     	
     	printf("deseja inserir mais?");
     	scanf("%d", &op);
     	
 	}
+
+
+    while(op == 2)
+    {
+        fflush(stdin);
+        printf("Insira um novo aluno: ");
+        gets(nome_aluno);
+
+        fflush(stdin);
+
+        printf("Qual Universidade? ");
+        gets(nome);
+
+        fflush(stdin);
+
+        printf("Matricula: ");
+        scanf("%d", &matricula);
+
+        printf("Idade: ");
+        scanf("%d", &idade);
+
+        printf("Numero de disciplinas: ");
+        scanf("%d", &disciplinas);
+
+        insere_aluno(nome_aluno, matricula, idade, disciplinas, nome, &inicio);
+
+        printf("Deseja inserir mais? ");
+        scanf("%d", &op);
+    }
 	
 	imprime(inicio);
+    imprime_alunos(inicio);
 	
     salvaDados(inicio);
 
