@@ -18,10 +18,18 @@ typedef struct Universidade{
 }Universidade;
 
 
-void insere_universidade(Universidade** inicio, char nome[], int qtdAlunos) {
+void insere_universidade(Universidade** inicio)
+{
+    char nome[30];
+
+    printf("Insira a Universidade: ");
+    fgets(nome, 30, stdin);
+
+    fflush(stdin);
+
     Universidade* nova_uni = malloc(sizeof(Universidade));
     strcpy(nova_uni->nome, nome);
-    nova_uni->qtdAlunos = qtdAlunos;
+    nova_uni->qtdAlunos = 0;
     nova_uni->prox = NULL;
     nova_uni->inicioAluno = NULL;
 
@@ -48,8 +56,28 @@ void insere_universidade(Universidade** inicio, char nome[], int qtdAlunos) {
 }
 
 
-void insere_aluno(char nome[30], int matricula, int idade, int disciplinas, char nome_uni[30], Universidade **uni_inicio)
+void insere_aluno(Universidade **uni_inicio)
 {
+    int matricula, idade, disciplinas;
+    char nome[30], nome_uni[30];
+
+    printf("Insira o nome do aluno: ");
+    fgets(nome, 30, stdin);
+    fflush(stdin);
+
+    printf("Em qual Universidade deseja cadastra-lo? ");
+    fgets(nome_uni, 30, stdin);
+    fflush(stdin);
+
+    printf("Numero de matricula: ");
+    scanf("%d", &matricula);
+
+    printf("Idade: ");
+    scanf("%d", &idade);
+
+    printf("Numero de disciplinas: ");
+    scanf("%d", &disciplinas);
+
     Aluno *novo_aluno = (Aluno*) malloc(sizeof(Aluno));
     strcpy(novo_aluno->nome, nome);
     novo_aluno->matricula = matricula;
@@ -66,6 +94,7 @@ void insere_aluno(char nome[30], int matricula, int idade, int disciplinas, char
     if(universidade->inicioAluno == NULL)
     {
         universidade->inicioAluno = novo_aluno;
+        return;
     }
 
     Aluno *aux = universidade->inicioAluno;
@@ -197,40 +226,93 @@ void imprime(Universidade* head){
 void imprime_alunos(Universidade *inicio)
 {
     Aluno *aux = inicio->inicioAluno;
-    /*while(aux != NULL)
+    while(aux != NULL)
     {
         printf("Nome: %s\nMatricula: %d\nIdade: %d\nNum Disciplinas: %d\n\n", aux->nome, aux->matricula, aux->idade, aux->nroDisciplinas);
         aux = aux->prox;
-    }*/
-    
+    }
 }
 
 int main() {
     Universidade *inicio = NULL;
-	int op;
+	int op = 10;
 	//recuperaDados(&inicio);
 	char nome[30];
     char nome_aluno[30];
 
     int qtd_alunos;
     int matricula, idade, disciplinas;
-	
-	//imprime(inicio);
 
-	printf("\n\ndeseja inserir mais?");
-	scanf("%d", &op);
+    if(inicio != NULL)
+    {
+        imprime(inicio);
+        printf("\n\ndeseja inserir mais?");
+        scanf("%d", &op);
+    }
+	
+    while(op)
+    {
+        printf("----- MENU -----");
+        printf("1) Insere Universidade\n");
+        printf("2) Insere Aluno\n");
+        printf("3) Busca Universidade\n");
+        printf("4) Busca Aluno\n");
+        printf("5) Remove Universidade\n");
+        printf("6) Remove Aluno\n");
+        printf("0) Fechar\n");
+
+        scanf("%d", &op);
+
+        switch (op)
+        {
+        case 1:
+            insere_universidade(&inicio);
+            break;
+
+        case 2:
+            insere_aluno(&inicio);
+            break;
+
+        case 3:
+            printf("Digite o nome da Universidade: ");
+            fgets(nome, 30, stdin);
+            fflush(stdin);
+            BuscaUniversidade(&inicio, nome);
+            break;
+
+        case 4:
+            printf("Digite a matricula do aluno: ");
+            scanf("%d", &matricula);
+            BuscaAluno(&inicio, matricula);
+            break;
+        
+        case 5:
+            printf("Digite o nome da Universidade: ");
+            fgets(nome, 30, stdin);
+            RemoveUniversidade(&inicio, nome);
+            break;
+        
+        case 6:
+            printf("Digite o nome do aluno: ");
+            fgets(nome_aluno, 30, stdin);
+            RemoveAluno(&inicio, nome_aluno);
+            break;
+
+        default:
+            printf("Opcao invalida! Digite novamente: ");
+            scanf("%d", &op);
+            break;
+        }
+    }
 
 	while(op == 1){
 		fflush(stdin);
     	printf("Insira uma universidade:");
-    	gets(nome);
+    	fgets(nome, 30, stdin);
     	
     	fflush(stdin);
-
-        printf("Qual a quantidade de alunos? ");
-        scanf("%d", &qtd_alunos);
     	
-    	insere_universidade(&inicio, nome, qtd_alunos);
+    	insere_universidade(&inicio);
     	
     	printf("deseja inserir mais?");
     	scanf("%d", &op);
@@ -242,12 +324,12 @@ int main() {
     {
         fflush(stdin);
         printf("Insira um novo aluno: ");
-        gets(nome_aluno);
+        fgets(nome_aluno, 30, stdin);
 
         fflush(stdin);
 
         printf("Qual Universidade? ");
-        gets(nome);
+        fgets(nome, 30, stdin);
 
         fflush(stdin);
 
@@ -260,16 +342,16 @@ int main() {
         printf("Numero de disciplinas: ");
         scanf("%d", &disciplinas);
 
-        insere_aluno(nome_aluno, matricula, idade, disciplinas, nome, &inicio);
+        insere_aluno(&inicio);
 
         printf("Deseja inserir mais? ");
         scanf("%d", &op);
     }
 	
-	imprime(inicio);
+	//imprime(inicio);
     imprime_alunos(inicio);
 	
-    salvaDados(inicio);
+    //salvaDados(inicio);
 
     return 0;
 }
