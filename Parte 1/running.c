@@ -363,6 +363,7 @@ void RemoveAluno(Universidade **listaUniversidades, int matricula)
                 }
 
                 free(alunoAtual);
+                universidadeAtual->qtdAlunos--;
                 printf("Aluno com a matricula %d foi removido.\n", matricula);
                 return;
             }
@@ -373,6 +374,7 @@ void RemoveAluno(Universidade **listaUniversidades, int matricula)
 
         universidadeAtual = universidadeAtual->prox;
     }
+    printf("Aluno nao encontrado.\n");
 }
 
 void salvaDados(Universidade *inicio)
