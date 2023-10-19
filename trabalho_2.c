@@ -142,7 +142,12 @@ void inserirProcesso(Processo **inicio, Processo *novoProcesso)
             temp->prox = novoProcesso;
         }
         else
-        {
+        {   
+            while (temp->prox != *inicio)
+            {
+                temp = temp->prox;
+            }
+            temp->prox = novoProcesso;
             novoProcesso->prox = *inicio;
             *inicio = novoProcesso;
         }
