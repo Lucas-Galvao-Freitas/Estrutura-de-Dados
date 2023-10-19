@@ -123,41 +123,28 @@ void InsereUniversidade(Universidade **inicio, char nomeUniversidade[30])
     nova_uni->prox = NULL;
     nova_uni->inicioAluno = NULL;
 
-    if (*inicio == NULL)
+    if (*inicio == NULL || strcmp(nomeUniversidade, (*inicio)->nome) < 0)
     {
+        nova_uni->prox = *inicio;
         *inicio = nova_uni;
         return;
     }
     else
     {
-        Universidade *aux = *inicio;
-        int nomeExiste = 0;
+        Universidade *prev = *inicio;
+        Universidade *current = prev->prox;
 
-        do
+        while (current != NULL && strcmp(nomeUniversidade, current->nome) >= 0)
         {
-            if (strcmp(aux->nome, nova_uni->nome) == 0)
-            {
-                nomeExiste = 1;
-                break;
-            }
-            aux = aux->prox;
-        } while (aux != *inicio);
-
-        if (nomeExiste)
-        {
-            printf("Ja existe uma universidade com o mesmo nome. Insercao incompleta.\n");
-            free(nova_uni);
-            return;
+            prev = current;
+            current = current->prox;
         }
 
-        aux = *inicio;
-        while (aux->prox != *inicio)
-        {
-            aux = aux->prox;
-        }
-        aux->prox = nova_uni;
+        nova_uni->prox = current;
+        prev->prox = nova_uni;
     }
 }
+
 
 void InsereAluno(Universidade **inicio, char nomeUniversidade[30])
 {
