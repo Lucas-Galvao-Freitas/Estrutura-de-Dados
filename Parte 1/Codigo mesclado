@@ -37,7 +37,6 @@ int main()
     recuperaDados(&inicio);
     int op, matricula;
     char nome_universidade[30];
-    char nome_aluno[30];
     
     while (1)
     {   
@@ -63,9 +62,9 @@ int main()
             break;
 
         case 2:
-            printf("Digite o nome do Aluno: ");
-            scanf(" %[^\n]s", nome_aluno);
-            InsereAluno(&inicio, nome_aluno);
+            printf("Digite o nome da Universidade: ");
+            scanf(" %[^\n]s", &nome_universidade);
+            InsereAluno(&inicio, nome_universidade);
             break;
 
         case 3:
@@ -93,7 +92,7 @@ int main()
             break;
 
         case 0:
-            // FecharPrograma();
+            FecharPrograma(inicio);
             break;
 
         default:
