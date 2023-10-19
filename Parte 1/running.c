@@ -27,8 +27,6 @@ void RemoveUniversidade(Universidade **listaUniversidades, char nomeUniversidade
 void RemoveAluno(Universidade **listaUniversidades, int matricula);
 void salvaDados(Universidade *inicio);
 Universidade *recuperaDados(Universidade **inicio);
-void imprimeUniversidade(Universidade *head);
-void imprimeAlunos(Universidade*);
 void FecharPrograma(Universidade*);
 
 int main()
@@ -490,42 +488,6 @@ Universidade *recuperaDados(Universidade **inicio)
 
     fclose(file);
     return *inicio;
-}
-
-void imprimeUniversidade(Universidade *head)
-{
-    if (head == NULL)
-    {
-        printf("Lista vazia\n");
-        return;
-    }
-
-    Universidade *aux = head;
-    while (aux != NULL)
-    {
-        printf("Universidade: %s\n", aux->nome);
-        aux = aux->prox;
-    }
-}
-
-void imprimeAlunos(Universidade *head)
-{
-    if (head == NULL || head->inicioAluno == NULL) {
-        printf("Nenhum aluno cadastrado nesta universidade.\n");
-        return;
-    }
-
-    Aluno *aluno = head->inicioAluno;
-    printf("Alunos da Universidade %s:\n", head->nome);
-
-    while (aluno != NULL) {
-        printf("Nome: %s\n", aluno->nome);
-        printf("Matrícula: %d\n", aluno->matricula);
-        printf("Idade: %d\n", aluno->idade);
-        printf("Número de disciplinas: %d\n", aluno->nroDisciplinas);
-        printf("\n");
-        aluno = aluno->prox;
-    }
 }
 
 void FecharPrograma(Universidade *inicio) {
