@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 typedef struct Product
 {
@@ -18,13 +20,39 @@ int height(Product *);
 Product *turnR(Product *);
 Product *turnL(Product *);
 int getBalance(Product *);
-Product *minValueProduct(Product *);
+Product *findMin(Product *);
 
 // funcoes gerais
 Product *createProduct(char nome[30], int code, float price, int in_stock);
 void addProduct(Product **, Product *newProduct);
 void findProduct(Product **, int); // busca por codigo
+Product *removeProduct(Product *, int);
 Product *recoverData(Product **root);
+void spaces(int);
+void printList(Product *, int);
+
+void main ()
+{
+    Product *root = NULL; // Inicializa a raiz da árvore AVL
+
+    // Adicionando alguns produtos para teste
+    addProduct(&root, createProduct("Produto A", 50, 100.0, 10));
+    addProduct(&root, createProduct("Produto B", 30, 75.0, 20));
+    addProduct(&root, createProduct("Produto C", 70, 120.0, 5));
+    addProduct(&root, createProduct("Produto D", 20, 90.0, 15));
+    addProduct(&root, createProduct("Produto E", 10, 110.0, 25));
+
+    // Imprime a árvore AVL
+    printf("Arvore AVL:\n");
+    printList(root, 0);
+
+    // Remover um produto (exemplo: remover o produto com código 20)
+    root = removeProduct(root, 20);
+
+    // Imprime a árvore AVL após a remoção
+    printf("\nArvore AVL apos a remocao do produto com codigo 20:\n");
+    printList(root, 0);
+}
 
 // funcao da altura
 int height(Product *P)
@@ -142,4 +170,105 @@ int getBalance(Product *P)
         return 0;
 
     return height(P->left) - height(P->right);
+}
+
+// Função para remover um produto da árvore binária
+Product *removeProduct(Product *root, int code) {
+    if (root == NULL) {
+        return root; // Se a árvore estiver vazia ou o produto não for encontrado, retorna a raiz original
+    }
+
+    // Procura pelo produto a ser removido
+    if (code < root->code) {
+        root->left = removeProduct(root->left, code); // Se o código for menor, vai para a subárvore esquerda
+    } else if (code > root->code) {
+        root->right = removeProduct(root->right, code); // Se for maior, vai para a subárvore direita
+    } else {
+        // Se o produto for encontrado, realiza a remoção
+        if (root->left == NULL || root->right == NULL) {
+            // Se o nó tiver no máximo um filho
+            Product *temp = root->left ? root->left : root->right;
+
+            // Caso sem filhos
+            if (temp == NULL) {
+                temp = root;
+                root = NULL;
+            } else { // Caso com um filho
+                *root = *temp; // Copia o conteúdo do filho não nulo para o nó atual
+            }
+            free(temp); // Libera a memória do nó removido
+        } else {
+            // Se o nó tiver dois filhos, encontra o sucessor na subárvore direita
+            Product *temp = findMin(root->right); // Encontra o nó mais à esquerda na subárvore direita
+
+            // Copia os dados do sucessor para este nó
+            root->code = temp->code;
+            strcpy(root->name, temp->name);
+            root->price = temp->price;
+            root->in_stock = temp->in_stock;
+
+            // Remove o sucessor
+            root->right = removeProduct(root->right, temp->code);
+        }
+    }
+
+    // Se a árvore tinha apenas um nó, então retorna
+    if (root == NULL) {
+        return root;
+    }
+
+    // Atualiza a altura do nó atual
+    root->height = 1 + max(height(root->left), height(root->right));
+
+    // Calcula o fator de balanceamento do nó atual
+    int balance = getBalance(root);
+
+    // Verifica se o nó se tornou desbalanceado após a remoção
+    // Se o nó estiver desbalanceado, realiza as rotações apropriadas
+    if (balance > 1 && getBalance(root->left) >= 0) {
+        return turnR(root); // Caso de rotação simples à direita
+    }
+    if (balance > 1 && getBalance(root->left) < 0) {
+        root->left = turnL(root->left);
+        return turnR(root); // Caso de rotação dupla esquerda-direita
+    }
+    if (balance < -1 && getBalance(root->right) <= 0) {
+        return turnL(root); // Caso de rotação simples à esquerda
+    }
+    if (balance < -1 && getBalance(root->right) > 0) {
+        root->right = turnR(root->right);
+        return turnL(root); // Caso de rotação dupla direita-esquerda
+    }
+
+    return root; // Retorna a raiz atualizada
+}
+
+void spaces(int n)
+{
+    for(int i = 0; i < n; i++)
+        printf(" ");
+}
+
+void printList(Product *root, int space)
+{
+    if(root == NULL) return;
+
+    space += 5;
+
+    printList(root->right, space);
+
+    printf("\n");
+    spaces(space);
+    printf("%d (%s)\n", root->code, root->name);
+
+    printList(root->left, space);
+}
+
+Product *findMin(Product *p)
+{   
+    // Só percorrendo a subárvore esquerda, nada de novo.
+    while(p->left != NULL)
+        p = p->left;
+
+    return p;
 }
