@@ -16,11 +16,15 @@ Product *createProduct(char nome[30], int code, float price, int in_stock);
 void addProduct(Product **, Product *newProduct);
 void findProduct(Product **, int); // busca por codigo
 Product *recoverData(Product **root);
+void deleteProduct(Product **, int);
+Product *findMin(Product *);
+void spaces(int);
+void printList(Product *, int);
+
 
 void main ()
 {
-
-
+    Product *root = NULL; 
 }
 
 // Função para criar um novo nó de produto com os dados fornecidos
@@ -61,51 +65,128 @@ void addProduct(Product **root, Product *newProduct)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Product *recoverData(Product **root)
+void deleteProduct(Product **root, int code)
 {
-    FILE *file = fopen("data.csv", "r");
+    Product **aux = root;
 
-    if (file == NULL)
+    if(*aux == NULL) return;
+
+    else if (code < (*aux)->code)
     {
-        printf("Arquivo inexistente, sera criado. \n");
-        return root;
+        deleteProduct(&(*aux)->left, code);
+    }
+    else if (code > (*aux)->code)
+    {
+        deleteProduct(&(*aux)->right, code);
     }
     else
-    {
-        printf("Erro ao carregar o arquivo!\n");
-        return;
-    }
+    {   
+        /* Nó encontrado:
+        
+            Casos para 1 filho ou nenhum: */
+        if((*aux)->left == NULL)
+        {
+            Product *temp = *aux;
+            *aux = (*aux)->right;
+            free(temp);
+        }
+        else if ((*aux)->right == NULL)
+        {
+            Product *temp = *aux;
+            *aux = (*aux)->left;
+            free(temp);
+        }
+        else
+        {   
+            /* Caso com 2 filhos:
+            
+            Minha ideia foi encontrar o nó mais a esquerda da subárvore direita
+            Esse after sera copiado pro nó atual
+            e recursivamente eu deleto esse after 
+            
+            */
+            Product *after = findMin((*aux)->right);
 
-    Product *auxProd = NULL;
-    while(fscanf(arquivo_csv, "%[^;];%d;%f;%d", product.nome, &product.codigo,
-&product.preco, &product.quant_estoque) == 4){
-//implemente aqui o código para montar a árvore enviando a //struct produto
+            (*aux)->code = after->code;
+
+            deleteProduct(&(*aux)->right, after->code);
+        }
+    } 
 }
+
+Product *findMin(Product *p)
+{   
+    // Só percorrendo a subárvore esquerda, nada de novo.
+    while(p->left != NULL)
+        p = p->left;
+
+    return p;
+}
+
+void spaces(int n)
+{
+    for(int i = 0; i < n; i++)
+        printf(" ");
+}
+
+void printList(Product *root, int space)
+{
+    if(root == NULL) return;
+
+    space += 5;
+
+    printList(root->right, space);
+
+    printf("\n");
+    spaces(space);
+    printf("%d (%s)\n", root->code, root->name);
+
+    printList(root->left, space);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Product *recoverData(Product **root)
+// {
+//     FILE *file = fopen("data.csv", "r");
+
+//     if (file == NULL)
+//     {
+//         printf("Arquivo inexistente, sera criado. \n");
+//         return root;
+//     }
+//     else
+//     {
+//         printf("Erro ao carregar o arquivo!\n");
+//         return;
+//     }
+
+//     Product *auxProd = NULL;
+//     while(fscanf(arquivo_csv, "%[^;];%d;%f;%d", product.nome, &product.codigo,
+// &product.preco, &product.quant_estoque) == 4){
+// //implemente aqui o código para montar a árvore enviando a //struct produto
+// }
        
 
-}
+// }
 
